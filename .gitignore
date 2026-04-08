@@ -1,0 +1,18 @@
+# Compiled executables
+rev2/trans
+rev2/trans.exe
+rev3/bank
+rev3/bank.exe
+rev4/bank
+rev4/bank.exe
+rev5/bank
+rev5/bank.exe
+
+# Runtime data files
+rev3/data/accounts.dat
+rev4/data/accounts.json
+rev5/data/accounts.db
+
+# Object files (if any)
+*.o
+*.obj
