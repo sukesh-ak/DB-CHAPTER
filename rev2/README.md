@@ -15,6 +15,7 @@ splitting things up.
 | Area | Rev 1 | Rev 2 |
 |------|-------|-------|
 | Struct | `struct clientData` used everywhere | `typedef struct { ... } Account;` -- shorter, cleaner |
+| Fields | `firstName[10]`, `lastName[15]` | `firstName[50]`, `lastName[50]` -- bigger buffers |
 | Naming | `deleteRecord`, `newRecord` | `deleteAccount`, `createAccount` -- names match what they do |
 | Input handling | No validation | Checks `scanf` return values, rejects out-of-range account numbers |
 | File init | Crashes if file missing | Auto-creates the file with blank records on first run |
@@ -26,8 +27,9 @@ splitting things up.
    of `struct clientData` everywhere.
 2. **Input validation** -- checking `scanf` return values to catch non-numeric input.
 3. **`perror()`** -- printing system error messages when file operations fail.
-4. **`fgets` vs `scanf` for strings** -- using `fgets` to read names that may contain
-   spaces, and stripping the trailing newline with `strcspn`.
+4. **`fgets` for safe string input** -- using `fgets(buf, MAX_NAME, stdin)` to read
+   names safely, and `strcspn` to strip the trailing newline. This replaces
+   `scanf("%s", ...)` which cannot limit input length or handle spaces.
 5. **Code readability** -- meaningful function names, consistent formatting, and
    comments that explain *why*, not *what*.
 

@@ -27,12 +27,16 @@ like this:
 typedef struct
 {
     int accountNumber;
-    char name[30];
+    char firstName[50];
+    char lastName[50];
     double balance;
 } Account;
 ```
 
 After this, you write `Account` everywhere instead of `struct clientData`.
+
+**Note:** Rev 1 had `firstName` and `lastName` as separate fields. We keep them
+separate here too, which will make the transition to Rev 3 seamless.
 
 ### 2. Use meaningful function names
 
@@ -77,13 +81,27 @@ records.
 
 Use `"accounts.dat"` as the filename (not `"credit.dat"`).
 
-### 6. Handle string input with spaces
+### 6. Use `fgets` to read names safely
 
-Rev 1 uses `scanf("%s", ...)` for names, which breaks on spaces. Use `fgets()` to
-read the account holder name so that names like "Alice Smith" work correctly.
-Remember to strip the trailing newline that `fgets` leaves behind.
+Prompt the user for first name and last name as separate inputs. Use `fgets()`
+instead of `scanf("%s", ...)` to read each name:
 
-**Hint:** `strcspn` can find the position of the newline character.
+```c
+fgets(acc.firstName, MAX_NAME, stdin);
+```
+
+`fgets` is safer than `scanf` for strings because:
+- It respects the buffer size you pass (`MAX_NAME`), preventing overflow
+- It can read names that contain spaces (e.g., "Mary Jane")
+
+**Gotcha:** `fgets` includes the trailing newline in the string. Strip it with:
+```c
+acc.firstName[strcspn(acc.firstName, "\n")] = '\0';
+```
+
+**Gotcha:** After a `scanf("%d", ...)` call, there is a leftover newline in the
+input buffer. Call `getchar()` once before the first `fgets` to consume it,
+otherwise `fgets` will read an empty line.
 
 ### 7. Delete account
 
@@ -94,8 +112,10 @@ not, print an error.
 ## Concepts You Will Use
 
 - `typedef struct { ... } Name;` -- giving a struct a short name
+- `#define` constants -- `MAX_NAME`, `RECORDS`, `FILE_NAME` so nothing is hardcoded
 - `fopen`, `fclose`, `fseek`, `fread`, `fwrite` -- binary file I/O
-- `fgets` and `strcspn` -- reading strings safely
+- `fgets` and `strcspn` -- reading strings safely with buffer size limits
+- `getchar()` -- clearing leftover newlines from the input buffer
 - `perror` -- printing system error messages
 - Return value checking -- `scanf` returns the number of items successfully read
 

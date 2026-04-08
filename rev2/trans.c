@@ -3,15 +3,17 @@
 #include <string.h>
 
 #define FILE_NAME "accounts.dat"
-#define MAX_NAME 30
+#define MAX_NAME 50
 #define RECORDS 100 // Maximum number of accounts
+
 
 // Structure for account record
 typedef struct
 {
-    int accountNumber;   // Unique account number
-    char name[MAX_NAME]; // Account holder name
-    double balance;      // Account balance
+    int accountNumber;       // Unique account number
+    char firstName[MAX_NAME]; // Account holder first name
+    char lastName[MAX_NAME];  // Account holder last name
+    double balance;          // Account balance
 } Account;
 
 // Function prototypes
@@ -93,7 +95,7 @@ void initializeFile()
         exit(EXIT_FAILURE);
     }
 
-    Account blank = {0, "", 0.0};
+    Account blank = {0, "", "", 0.0};
     for (int i = 0; i < RECORDS; i++)
     {
         fwrite(&blank, sizeof(Account), 1, fp);
@@ -132,10 +134,13 @@ void createAccount()
     }
 
     acc.accountNumber = accNum;
-    printf("Enter account holder name: ");
-    getchar(); // clear newline
-    fgets(acc.name, MAX_NAME, stdin);
-    acc.name[strcspn(acc.name, "\n")] = '\0'; // remove newline
+    getchar(); // clear newline left by scanf
+    printf("Enter first name: ");
+    fgets(acc.firstName, MAX_NAME, stdin);
+    acc.firstName[strcspn(acc.firstName, "\n")] = '\0';
+    printf("Enter last name: ");
+    fgets(acc.lastName, MAX_NAME, stdin);
+    acc.lastName[strcspn(acc.lastName, "\n")] = '\0';
     printf("Enter initial balance: ");
     if (scanf("%lf", &acc.balance) != 1)
     {
@@ -229,7 +234,7 @@ void deleteAccount()
     }
 
     // Overwrite with blank record
-    Account blank = {0, "", 0.0};
+    Account blank = {0, "", "", 0.0};
     fseek(fp, getFilePosition(accNum), SEEK_SET);
     fwrite(&blank, sizeof(Account), 1, fp);
     fclose(fp);
@@ -267,8 +272,8 @@ void viewAccount()
     }
     else
     {
-        printf("\nAccount Number: %d\nName: %s\nBalance: %.2f\n",
-               acc.accountNumber, acc.name, acc.balance);
+        printf("\nAccount Number: %d\nName: %s %s\nBalance: %.2f\n",
+               acc.accountNumber, acc.firstName, acc.lastName, acc.balance);
     }
 }
 
@@ -283,14 +288,14 @@ void listAccounts()
     }
 
     Account acc;
-    printf("\n%-10s %-30s %-10s\n", "Acc No", "Name", "Balance");
-    printf("----------------------------------------------------------\n");
+    printf("\n%-10s %-16s %-16s %-10s\n", "Acc No", "First Name", "Last Name", "Balance");
+    printf("--------------------------------------------------------------\n");
 
     while (fread(&acc, sizeof(Account), 1, fp) == 1)
     {
         if (acc.accountNumber != 0)
         {
-            printf("%-10d %-30s %-10.2f\n", acc.accountNumber, acc.name, acc.balance);
+            printf("%-10d %-16s %-16s %-10.2f\n", acc.accountNumber, acc.firstName, acc.lastName, acc.balance);
         }
     }
     fclose(fp);
