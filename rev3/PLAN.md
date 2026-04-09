@@ -33,17 +33,18 @@ This header file defines the `Account` struct that every other file will use.
 
 It must contain:
 - An include guard (`#pragma once` or `#ifndef`/`#define`/`#endif`)
+- `#define MAX_NAME 50` -- the buffer size constant, same as Rev 2
 - The `Account` typedef with these fields:
   - `int acctNum`
-  - `char firstName[50]`
-  - `char lastName[50]`
+  - `char firstName[MAX_NAME]`
+  - `char lastName[MAX_NAME]`
   - `double balance`
 - A declaration for `account_print(const Account *acc)` -- a helper that prints
   one account as a formatted line
 
-**Note:** The struct fields are slightly different from Rev 2. Rev 2 had a single
-`name` field. Here we split it into `firstName` and `lastName` to better match
-the original Rev 1 structure and to prepare for the JSON and SQLite stages.
+**Note:** The struct fields match Rev 2 (`firstName`, `lastName`), but we rename
+`accountNumber` to `acctNum` for brevity. The `MAX_NAME` constant lives here
+because any file that includes `account.h` may need it (e.g., for `fgets` calls).
 
 ### Step 2: Create `app/account.c`
 
@@ -113,8 +114,8 @@ void account_service_delete(void);
 ### Step 6: Create `app/account_service.c`
 
 This is the bridge between the menu and the storage layer. It handles **user
-interaction** -- reading input with `scanf`, printing messages -- and calls
-`storage_*` functions to do the actual data work.
+interaction** -- reading input, printing messages -- and calls `storage_*`
+functions to do the actual data work.
 
 It must include:
 - `"account.h"`, `"account_service.h"`, and `"../storage/storage.h"`
@@ -122,7 +123,8 @@ It must include:
 Each function should:
 - `account_service_init`: call `storage_init()` and return its result
 - `account_service_create`: ask for account number, check if it already exists
-  (using `storage_get`), ask for name and balance, call `storage_add`
+  (using `storage_get`), ask for first name, last name, and balance, call
+  `storage_add`
 - `account_service_update`: ask for account number, fetch it with `storage_get`,
   display it, ask for a transaction amount, update the balance, call
   `storage_update`
@@ -130,6 +132,11 @@ Each function should:
   print success or error
 - `account_service_list`: call `storage_get_all`, then loop and print each
   account using `account_print`
+
+**Input handling:** Use `fgets(buf, MAX_NAME, stdin)` for reading names, just
+like in Rev 2. Remember to strip the trailing newline with `strcspn` and to
+call `getchar()` after `scanf("%d", ...)` to clear the leftover newline before
+the first `fgets`.
 
 **Important rule:** This file must never call `fopen`, `fread`, `fwrite`, or any
 file I/O function directly. All data access goes through `storage_*` functions.
