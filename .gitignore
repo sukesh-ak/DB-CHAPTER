@@ -16,3 +16,6 @@ rev5/data/accounts.db
 # Object files (if any)
 *.o
 *.obj
+Final/bank_file
+Final/bank_json
+Final/bank_sqlite
